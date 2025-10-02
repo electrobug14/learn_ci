@@ -27,7 +27,9 @@ jobs:
       - name: Compile Verilog Design and Testbench
         # iverilog compiles the two files into a single executable 'a.out'
         # The design (adder_4bit.v) and the testbench (tb_adder_4bit.v) are included.
-        run: iverilog -o a.out adder_4bit.v tb_adder_4bit.v
+        run: iverilog -g2012 -o a.out adder_4bit.v tb_adder_4bit.v
+        #OR
+        run: iverilog -sverilog -o a.out adder_4bit.v tb_adder_4bit.v
 
       - name: Run Simulation and Check Exit Status
         # vvp executes the compiled 'a.out'.
