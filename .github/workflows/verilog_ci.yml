@@ -1,0 +1,42 @@
+# File: .github/workflows/verilog_ci.yml
+name: Verilog CI Verification
+
+# Trigger the workflow on pushes to the main branch or pull requests
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  simulate_verilog:
+    # Use the latest Ubuntu runner for a standard Linux environment
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        # Action to clone the repository files onto the runner machine
+        uses: actions/checkout@v4
+
+      - name: Install Icarus Verilog Simulator
+        # Use apt-get to install the open-source Icarus Verilog (iverilog)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y iverilog
+
+      - name: Compile Verilog Design and Testbench
+        # iverilog compiles the two files into a single executable 'a.out'
+        # The design (adder_4bit.v) and the testbench (tb_adder_4bit.v) are included.
+        run: iverilog -o a.out adder_4bit.v tb_adder_4bit.v
+
+      - name: Run Simulation and Check Exit Status
+        # vvp executes the compiled 'a.out'.
+        # IMPORTANT: If the testbench detects a failure and calls $fatal(1), 
+        # vvp will exit with a non-zero status, causing this CI step to FAIL.
+        # If all tests pass, the testbench calls $finish, vvp exits cleanly, 
+        # and this step PASSES.
+        run: vvp a.out
+        
+      - name: Display Success Message
+        # This step only runs if the previous 'Run Simulation' step PASSED.
+        run: echo "🎉 Verification Complete! All random tests passed successfully!"
